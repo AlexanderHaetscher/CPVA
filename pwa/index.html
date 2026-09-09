@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#173b57">
+  <meta name="description" content="DA40 Startstreckenrechner">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <title>DA40 Startstrecke</title>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Diamond DA40</p>
+        <h1>Startstreckenrechner</h1>
+      </div>
+      <span id="offlineBadge" class="status-badge">Offline bereit</span>
+    </header>
+
+    <section class="result-card" aria-live="polite">
+      <div>
+        <p class="result-label">Startstrecke über Hindernis</p>
+        <p class="result-value"><span id="resultValue">—</span> <span class="result-unit">m</span></p>
+        <p id="resultStatus" class="result-status">Eingaben vollständig ausfüllen</p>
+      </div>
+    </section>
+
+    <form id="calculatorForm" novalidate>
+      <section class="card">
+        <h2>Eingaben</h2>
+        <div class="form-grid">
+          <label>Pressure Altitude <span>[ft]</span>
+            <input id="pressureAltitude" type="number" min="0" max="10000" step="100" value="0" inputmode="numeric">
+          </label>
+          <label>Außentemperatur <span>[°C]</span>
+            <input id="temperature" type="number" min="-20" max="50" step="1" value="15" inputmode="decimal">
+          </label>
+          <label>Masse <span>[kg]</span>
+            <input id="mass" type="number" min="850" max="1200" step="1" value="1150" inputmode="numeric">
+          </label>
+          <label>Windkomponente <span>[kt]</span>
+            <input id="wind" type="number" min="-5" max="20" step="1" value="0" inputmode="numeric">
+            <small>positiv = Gegenwind</small>
+          </label>
+          <label>Hindernishöhe <span>[ft]</span>
+            <select id="obstacleHeight"><option value="0">0</option><option value="50" selected>50</option></select>
+          </label>
+          <label>Gras / Höhe
+            <select id="grass"><option>Kein Gras</option><option>Gras &lt;5 cm</option><option>Gras 5-10 cm</option><option>Gras &gt;10 cm</option></select>
+          </label>
+          <label>Nass
+            <select id="wet"><option>Nein</option><option>Ja</option></select>
+          </label>
+          <label>Steigung &gt; 2 %
+            <select id="slope"><option>Nein</option><option>Ja</option></select>
+          </label>
+        </div>
+      </section>
+    </form>
+
+    <section class="card steps-card">
+      <details>
+        <summary>Berechnungsschritte anzeigen</summary>
+        <dl id="steps"></dl>
+      </details>
+    </section>
+
+    <footer>
+      <p>Quelle und Tabellenwerte gemäß Excel-Referenz. Vor operativer Verwendung gegen das freigegebene AFM/POH prüfen.</p>
+    </footer>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
