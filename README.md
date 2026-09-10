@@ -12,6 +12,7 @@ Ein browserbasierter, installierbarer Startstreckenrechner für die Lady, Panthe
 - QNH manuell oder automatisch über den aktuellen METAR-Dienst
 - automatische Druckhöhenberechnung aus Platzhöhe und QNH
 - Startmasse aus Leergewicht, Besatzung, Rückbank, Gepäck und Treibstoff (US gal oder Liter)
+- Treibstoffumrechnung mit 1 US gal = 3,785 l und einer Dichte von 0,72 kg/l
 - Installation auf dem Startbildschirm wie eine App
 - Offline-Betrieb nach dem ersten Laden
 - Berechnung der Startstrecke in mehreren Stufen:
