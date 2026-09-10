@@ -7,7 +7,7 @@ const DATA = {
 const AIRCRAFT = { DA40: { name: 'Diamond DA40', maxMass: 1200, ready: true }, PANTHERA: { name: 'Panthera', ready: false }, VL3: { name: 'VL3', ready: false }, GYRO: { name: 'Gyro', ready: false } };
 const FACTORS = {'Kein Gras':1,'Gras <5 cm':1.10,'Gras 5-10 cm':1.15,'Gras >10 cm':1.25};
 const AIRPORTS_URL = 'https://raw.githubusercontent.com/mborsetti/airportsdata/main/airportsdata/airports.csv';
-const WINDY_API_KEY = ''; // Nur lokal eintragen; niemals committen.
+const WINDY_API_KEY = 'YbdYOxKzuBsJjyLmls4nsYuWluTQIMj3'; 
 const $ = id => document.getElementById(id);
 const value = id => Number($(id).value);
 let airportRows;
