@@ -84,24 +84,59 @@ function render() {
 function parseCsvRow(line) {
   return line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(cell => cell.replace(/^"|"$/g,'').replace(/""/g,'"'));
 }
+function airportDistanceKm(a,b) {
+  if (!a || !b || !Number.isFinite(a.lat) || !Number.isFinite(a.lon) || !Number.isFinite(b.lat) || !Number.isFinite(b.lon)) return Number.POSITIVE_INFINITY;
+  const toRad = value => value * Math.PI / 180;
+  const lat1 = toRad(a.lat), lat2 = toRad(b.lat), dLat = toRad(b.lat - a.lat), dLon = toRad(b.lon - a.lon);
+  const hav = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.sqrt(hav));
+}
+async function getAirportCatalog() {
+  if (airportRows) return airportRows;
+  const csv = await (await fetch(AIRPORTS_URL)).text();
+  airportRows = csv.split(/\r?\n/).slice(1).filter(Boolean).map(parseCsvRow).map(row => ({
+    icao: row[0],
+    name: row[2],
+    elevation: Number(row[6]),
+    lat: Number(row[7]),
+    lon: Number(row[8])
+  })).filter(row => row.icao && Number.isFinite(row.lat) && Number.isFinite(row.lon));
+  return airportRows;
+}
 async function loadAirport(icao) {
   const code=icao.trim().toUpperCase();
   if (!/^[A-Z]{4}$/.test(code)) { selectedAirport=null; $('airportStatus').textContent='Bitte einen vierstelligen ICAO-Code eingeben.'; render(); return; }
   $('airportStatus').textContent='Flugplatzdaten werden geladen …';
   try {
-    airportRows ??= (await (await fetch(AIRPORTS_URL)).text()).split(/\r?\n/).slice(1).filter(Boolean).map(parseCsvRow);
+    const rows = await getAirportCatalog();
+    const row = rows.find(item => item.icao.toUpperCase()===code);
+    if (!row) { selectedAirport=null; $('airportStatus').textContent='ICAO-Code nicht in airportsdata gefunden.'; render(); return; }
+    selectedAirport={icao:row.icao,name:row.name,elevation:Number(row.elevation),lat:row.lat,lon:row.lon};
+    $('airportElevation').value=selectedAirport.elevation;
+    $('airportStatus').textContent=`${selectedAirport.name} – ${selectedAirport.elevation} ft`;
+    render();
   } catch (error) {
     selectedAirport=null;
     $('airportStatus').textContent=`Flugplatzdaten konnten nicht geladen werden: ${error.message}`;
     render();
-    return;
   }
-  const row=airportRows.find(item => item[0].toUpperCase()===code);
-  if (!row) { selectedAirport=null; $('airportStatus').textContent='ICAO-Code nicht in airportsdata gefunden.'; render(); return; }
-  selectedAirport={icao:row[0],name:row[2],elevation:Number(row[6])};
-  $('airportElevation').value=selectedAirport.elevation;
-  $('airportStatus').textContent=`${selectedAirport.name} – ${selectedAirport.elevation} ft`;
-  render();
+}
+async function getNearbyQnh(code) {
+  const rows = await getAirportCatalog();
+  const origin = rows.find(item => item.icao.toUpperCase()===code);
+  if (!origin) return null;
+  const candidates = rows.filter(item => item.icao.toUpperCase() !== code).map(item => ({ ...item, distanceKm: airportDistanceKm(origin, item) })).filter(item => Number.isFinite(item.distanceKm)).sort((a,b) => a.distanceKm - b.distanceKm).slice(0, 25);
+  for (const candidate of candidates) {
+    try {
+      const response = await fetch(`https://aviationweather.gov/api/data/metar?ids=${candidate.icao}&format=json`);
+      if (!response.ok) continue;
+      const reports = await response.json();
+      if (reports[0] && Number.isFinite(reports[0].altim)) return { qnh: reports[0].altim, source: candidate.icao };
+    } catch (error) {
+      continue;
+    }
+  }
+  return null;
 }
 async function loadQnh() {
   const code=$('airport').value.trim().toUpperCase();
@@ -109,11 +144,23 @@ async function loadQnh() {
   $('qnhStatus').textContent='QNH wird aus METAR geladen …';
   try {
     const response=await fetch(`https://aviationweather.gov/api/data/metar?ids=${code}&format=json`);
-    if (!response.ok) throw Error('METAR-Dienst nicht erreichbar');
-    const reports=await response.json();
-    if (!reports[0] || !Number.isFinite(reports[0].altim)) throw Error('Kein aktuelles QNH verfügbar');
-    $('qnh').value=reports[0].altim; $('qnhStatus').textContent=`Automatisch: ${reports[0].altim} hPa`;
-    render();
+    if (response.ok) {
+      const reports=await response.json();
+      if (reports[0] && Number.isFinite(reports[0].altim)) {
+        $('qnh').value=reports[0].altim;
+        $('qnhStatus').textContent=`Automatisch: ${reports[0].altim} hPa (Startplatz)`;
+        render();
+        return;
+      }
+    }
+    const fallback = await getNearbyQnh(code);
+    if (fallback) {
+      $('qnh').value=fallback.qnh;
+      $('qnhStatus').textContent=`Automatisch: ${fallback.qnh} hPa (Nachbarplatz ${fallback.source})`;
+      render();
+      return;
+    }
+    throw Error('Kein aktuelles QNH verfügbar');
   } catch (error) { $('qnhStatus').textContent=`Automatische Abfrage fehlgeschlagen: ${error.message}. Bitte manuell eingeben.`; }
 }
 document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',render));
