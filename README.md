@@ -1,8 +1,8 @@
-﻿# DA40 Startstreckenrechner
+# CPVA Startstreckenrechner
 
-Ein browserbasierter, installierbarer Startstreckenrechner für die Diamond DA40. Die Anwendung ist als Progressive Web App (PWA) umgesetzt und kann auf iPhone, iPad, Android-Geräten und Desktop-Browsern verwendet werden.
+Ein browserbasierter, installierbarer Startstreckenrechner für die Lady, Panther, Junior oder Gyro. Die Anwendung ist als Progressive Web App (PWA) umgesetzt und kann auf iPhone, iPad, Android-Geräten und Desktop-Browsern verwendet werden.
 
-> **Hinweis zur Verwendung:** Dieses Projekt ist ein technischer Prototyp. Vor einem Einsatz im Flugbetrieb müssen sämtliche Tabellenwerte, Annahmen und Ergebnisse gegen das aktuell freigegebene AFM/POH der konkreten DA40-Version geprüft und freigegeben werden.
+> **Hinweis zur Verwendung:** Dieses Projekt ist ein technischer Prototyp. Vor einem Einsatz im Flugbetrieb müssen sämtliche Tabellenwerte, Annahmen und Ergebnisse gegen das aktuell freigegebene AFM/POH der konkreten Version geprüft und freigegeben werden.
 
 ## Funktionen
 
@@ -13,7 +13,7 @@ Ein browserbasierter, installierbarer Startstreckenrechner für die Diamond DA40
 - automatische Druckhöhenberechnung aus Platzhöhe und QNH
 - Startmasse aus Leergewicht, Besatzung, Rückbank, Gepäck und Treibstoff (US gal oder Liter)
 - Treibstoffumrechnung mit 1 US gal = 3,785 l und einer Dichte von 0,72 kg/l
-- Optionaler Windy-Point-Forecast-Fallback: lokalen Key nur in pwa/app.js bei WINDY_API_KEY eintragen und nicht veröffentlichen
+- Optionaler Windy-Point-Forecast-Fallback: lokalen Key nur in pwa/app.js bei WINDY_API_KEY eintragen und nicht veroeffentlichen
 - Installation auf dem Startbildschirm wie eine App
 - Offline-Betrieb nach dem ersten Laden
 - Berechnung der Startstrecke in mehreren Stufen:
@@ -115,4 +115,3 @@ Die PWA und die Excel-Referenz müssen bei Änderungen an den Tabellenwerten gem
 ## Lizenz und Datenquelle
 
 Eine Lizenz ist derzeit noch nicht festgelegt. Die Berechnungsdaten stammen aus der zugehörigen Excel-Referenz und müssen vor einer Veröffentlichung mit der autorisierten Flughandbuchquelle abgeglichen werden.
-
