@@ -1,12 +1,12 @@
 {
-  "name": "DA40 Startstreckenrechner",
-  "short_name": "DA40 Startstrecke",
+  "name": "Startstreckenrechner",
+  "short_name": "Startstrecke",
   "lang": "de",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f3f7fa",
   "theme_color": "#173b57",
-  "description": "Offlinefähiger DA40-Startstreckenrechner",
+  "description": "Offlinefähiger Startstreckenrechner für mehrere Flugzeuge",
   "icons": [
     { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
   ]

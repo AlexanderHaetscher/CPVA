@@ -4,73 +4,78 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#173b57">
-  <meta name="description" content="DA40 Startstreckenrechner">
+  <meta name="description" content="Startstreckenrechner">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
-  <title>DA40 Startstrecke</title>
+  <title>Startstreckenrechner</title>
 </head>
 <body>
   <main class="app-shell">
     <header class="app-header">
-      <div>
-        <p class="eyebrow">Diamond DA40</p>
-        <h1>Startstreckenrechner</h1>
-      </div>
+      <div><p class="eyebrow" id="aircraftEyebrow">Diamond DA40</p><h1>Startstreckenrechner</h1></div>
       <span id="offlineBadge" class="status-badge">Offline bereit</span>
     </header>
-
     <section class="result-card" aria-live="polite">
-      <div>
-        <p class="result-label">Startstrecke über Hindernis</p>
-        <p class="result-value"><span id="resultValue">—</span> <span class="result-unit">m</span></p>
-        <p id="resultStatus" class="result-status">Eingaben vollständig ausfüllen</p>
-      </div>
+      <div><p class="result-label">Startstrecke über Hindernis</p><p class="result-value"><span id="resultValue">—</span> <span class="result-unit">m</span></p><p id="resultStatus" class="result-status">Eingaben vollständig ausfüllen</p></div>
     </section>
-
     <form id="calculatorForm" novalidate>
       <section class="card">
         <h2>Eingaben</h2>
         <div class="form-grid">
-          <label>Pressure Altitude <span>[ft]</span>
+          <label>Flugzeug
+            <select id="aircraft"><option value="DA40">Diamond DA40</option><option value="PANTHERA">Panthera (Daten folgen)</option><option value="VL3">VL3 (Daten folgen)</option><option value="GYRO">Gyro (Daten folgen)</option></select>
+          </label>
+          <label>Höhenquelle
+            <select id="altitudeMode"><option value="airport" selected>Startplatz und QNH</option><option value="direct">Druckhöhe direkt</option></select>
+          </label>
+          <label id="airportField">Startplatz <span>[ICAO]</span>
+            <input id="airport" type="text" maxlength="4" pattern="[A-Za-z]{4}" placeholder="z. B. EDDF" autocomplete="off" autocapitalize="characters">
+            <small id="airportStatus">ICAO-Code eingeben; Platzhöhe wird automatisch geladen.</small>
+          </label>
+          <label id="qnhField">QNH
+            <div class="inline-input"><input id="qnh" type="number" min="850" max="1100" step="1" value="1013" inputmode="numeric"><select id="qnhMode" aria-label="QNH-Quelle"><option value="manual">Manuell</option><option value="auto" selected>Automatisch (METAR)</option></select></div>
+            <small id="qnhStatus">Für automatische Abfrage ICAO-Code eingeben.</small>
+          </label>
+          <label id="directPressureField" class="hidden">Druckhöhe <span>[ft]</span>
             <input id="pressureAltitude" type="number" min="0" max="10000" step="100" value="0" inputmode="numeric">
           </label>
-          <label>Außentemperatur <span>[°C]</span>
-            <input id="temperature" type="number" min="-20" max="50" step="1" value="15" inputmode="decimal">
+          <label id="calculatedPressureField">Berechnete Druckhöhe <span>[ft]</span>
+            <input id="calculatedPressureAltitude" type="number" readonly>
           </label>
-          <label>Masse <span>[kg]</span>
-            <input id="mass" type="number" min="850" max="1200" step="1" value="1150" inputmode="numeric">
+          <label>Platzhöhe <span>[ft]</span><input id="airportElevation" type="number" readonly placeholder="wird geladen"></label>
+          <label>Außentemperatur <span>[°C]</span><input id="temperature" type="number" min="-20" max="50" step="1" value="15" inputmode="decimal"></label>
+        </div>
+      </section>
+      <section class="card">
+        <h2>Startmasse</h2>
+        <div class="form-grid">
+          <label>Flugzeugleergewicht <span>[kg]</span><input id="emptyMass" type="number" min="0" step="0.1" value="850" inputmode="decimal"></label>
+          <label>Pilot <span>[kg]</span><input id="pilotMass" type="number" min="0" step="0.1" value="85" inputmode="decimal"></label>
+          <label>Copilot <span>[kg]</span><input id="copilotMass" type="number" min="0" step="0.1" value="0" inputmode="decimal"></label>
+          <label>Rückbank <span>[kg]</span><input id="rearMass" type="number" min="0" step="0.1" value="0" inputmode="decimal"></label>
+          <label>Gepäck <span>[kg]</span><input id="baggageMass" type="number" min="0" step="0.1" value="20" inputmode="decimal"></label>
+          <label>Treibstoff
+            <div class="inline-input"><input id="fuelAmount" type="number" min="0" step="0.1" value="50" inputmode="decimal"><select id="fuelUnit" aria-label="Treibstoffeinheit"><option value="gal">US gal</option><option value="l">Liter</option></select></div>
+            <small id="fuelKg">≈ 136,0 kg</small>
           </label>
-          <label>Windkomponente <span>[kt]</span>
-            <input id="wind" type="number" min="-5" max="20" step="1" value="0" inputmode="numeric">
-            <small>positiv = Gegenwind</small>
-          </label>
-          <label>Hindernishöhe <span>[ft]</span>
-            <select id="obstacleHeight"><option value="0">0</option><option value="50" selected>50</option></select>
-          </label>
-          <label>Gras / Höhe
-            <select id="grass"><option>Kein Gras</option><option>Gras &lt;5 cm</option><option>Gras 5-10 cm</option><option>Gras &gt;10 cm</option></select>
-          </label>
-          <label>Nass
-            <select id="wet"><option>Nein</option><option>Ja</option></select>
-          </label>
-          <label>Steigung &gt; 2 %
-            <select id="slope"><option>Nein</option><option>Ja</option></select>
-          </label>
+          <label>Startmasse <span>[kg]</span><input id="mass" type="number" readonly></label>
+          <label>Maximale Tabellenmasse <span>[kg]</span><input id="maxMass" type="number" readonly value="1200"></label>
+        </div>
+      </section>
+      <section class="card">
+        <h2>Startbedingungen</h2>
+        <div class="form-grid">
+          <label>Windkomponente <span>[kt]</span><input id="wind" type="number" min="-5" max="20" step="1" value="0" inputmode="numeric"><small>positiv = Gegenwind</small></label>
+          <label>Hindernishöhe <span>[ft]</span><select id="obstacleHeight"><option value="0">0</option><option value="50" selected>50</option></select></label>
+          <label>Gras / Höhe <select id="grass"><option>Kein Gras</option><option>Gras &lt;5 cm</option><option>Gras 5-10 cm</option><option>Gras &gt;10 cm</option></select></label>
+          <label>Nass <select id="wet"><option>Nein</option><option>Ja</option></select></label>
+          <label>Steigung &gt; 2 % <select id="slope"><option>Nein</option><option>Ja</option></select></label>
         </div>
       </section>
     </form>
-
-    <section class="card steps-card">
-      <details>
-        <summary>Berechnungsschritte anzeigen</summary>
-        <dl id="steps"></dl>
-      </details>
-    </section>
-
-    <footer>
-      <p>Quelle und Tabellenwerte gemäß Excel-Referenz. Vor operativer Verwendung gegen das freigegebene AFM/POH prüfen.</p>
-    </footer>
+    <section class="card steps-card"><details><summary>Berechnungsschritte anzeigen</summary><dl id="steps"></dl></details></section>
+    <footer><p>Quelle und Tabellenwerte gemäß Excel-Referenz. Vor operativer Verwendung gegen das freigegebene AFM/POH prüfen. Flugplatzdaten: <a href="https://github.com/mborsetti/airportsdata" rel="noreferrer">airportsdata</a>; QNH: METAR-Dienst.</p></footer>
   </main>
   <script type="module" src="app.js"></script>
 </body>

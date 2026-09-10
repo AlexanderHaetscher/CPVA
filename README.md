@@ -7,6 +7,11 @@ Ein browserbasierter, installierbarer Startstreckenrechner für die Diamond DA40
 ## Funktionen
 
 - responsive Bedienoberfläche für Smartphones
+- Auswahl von vier Flugzeugtypen: DA40, Panthera, VL3 und Gyro; zunächst sind nur die DA40-Tabellen hinterlegt
+- ICAO-Startplatz mit Platzhöhe aus [mborsetti/airportsdata](https://github.com/mborsetti/airportsdata)
+- QNH manuell oder automatisch über den aktuellen METAR-Dienst
+- automatische Druckhöhenberechnung aus Platzhöhe und QNH
+- Startmasse aus Leergewicht, Besatzung, Rückbank, Gepäck und Treibstoff (US gal oder Liter)
 - Installation auf dem Startbildschirm wie eine App
 - Offline-Betrieb nach dem ersten Laden
 - Berechnung der Startstrecke in mehreren Stufen:

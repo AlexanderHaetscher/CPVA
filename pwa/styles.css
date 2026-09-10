@@ -21,6 +21,10 @@ label span { font-size:.83rem; }
 small { margin-top:-3px; font-size:.75rem; }
 input,select { width:100%; min-height:45px; border:1px solid #b9c9d3; border-radius:10px; background:#fff; color:var(--ink); font:inherit; padding:9px 11px; }
 input:focus,select:focus { outline:3px solid rgb(36 107 145 / 18%); border-color:var(--blue); }
+input[readonly] { background:#f3f7fa; color:var(--muted); }
+.inline-input { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:7px; }
+.inline-input select { min-width:96px; }
+.hidden { display:none !important; }
 .steps-card { padding:0; }
 details { padding:16px 20px; }
 summary { cursor:pointer; color:var(--navy); font-weight:700; }
