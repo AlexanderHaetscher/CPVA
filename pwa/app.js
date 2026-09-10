@@ -7,6 +7,7 @@ const DATA = {
 const AIRCRAFT = { DA40: { name: 'Diamond DA40', maxMass: 1200, ready: true }, PANTHERA: { name: 'Panthera', ready: false }, VL3: { name: 'VL3', ready: false }, GYRO: { name: 'Gyro', ready: false } };
 const FACTORS = {'Kein Gras':1,'Gras <5 cm':1.10,'Gras 5-10 cm':1.15,'Gras >10 cm':1.25};
 const AIRPORTS_URL = 'https://raw.githubusercontent.com/mborsetti/airportsdata/main/airportsdata/airports.csv';
+const WINDY_API_KEY = ''; // Nur lokal eintragen; niemals committen.
 const $ = id => document.getElementById(id);
 const value = id => Number($(id).value);
 let airportRows;
@@ -138,6 +139,19 @@ async function getNearbyQnh(code) {
   }
   return null;
 }
+async function getWindyPressure(code) {
+  if (!WINDY_API_KEY || !selectedAirport || !Number.isFinite(selectedAirport.lat) || !Number.isFinite(selectedAirport.lon)) return null;
+  const response = await fetch('https://api.windy.com/api/point-forecast/v2', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ lat: selectedAirport.lat, lon: selectedAirport.lon, model: 'iconD2', parameters: ['pressure'], levels: ['surface'], key: WINDY_API_KEY })
+  });
+  if (!response.ok) throw Error(`Windy-Dienst nicht erreichbar (${response.status})`);
+  const data = await response.json();
+  const pressurePa = Array.isArray(data['pressure-surface']) ? data['pressure-surface'].find(Number.isFinite) : null;
+  if (!Number.isFinite(pressurePa)) return null;
+  return { qnh: Math.round(pressurePa / 100), model: 'ICON-D2' };
+}
 async function loadQnh() {
   const code=$('airport').value.trim().toUpperCase();
   if ($('qnhMode').value !== 'auto' || !/^[A-Z]{4}$/.test(code)) return;
@@ -157,6 +171,13 @@ async function loadQnh() {
     if (fallback) {
       $('qnh').value=fallback.qnh;
       $('qnhStatus').textContent=`Automatisch: ${fallback.qnh} hPa (Nachbarplatz ${fallback.source})`;
+      render();
+      return;
+    }
+    const windy = await getWindyPressure(code);
+    if (windy) {
+      $('qnh').value=windy.qnh;
+      $('qnhStatus').textContent=`Automatisch: ${windy.qnh} hPa (Windy ${windy.model}, ${code})`;
       render();
       return;
     }
