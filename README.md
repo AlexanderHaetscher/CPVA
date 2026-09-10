@@ -1,8 +1,8 @@
-# DA40 Startstreckenrechner
+# CPVA Startstreckenrechner
 
-Ein browserbasierter, installierbarer Startstreckenrechner für die Diamond DA40. Die Anwendung ist als Progressive Web App (PWA) umgesetzt und kann auf iPhone, iPad, Android-Geräten und Desktop-Browsern verwendet werden.
+Ein browserbasierter, installierbarer Startstreckenrechner für die Lady, Panther, Junior oder Gyro. Die Anwendung ist als Progressive Web App (PWA) umgesetzt und kann auf iPhone, iPad, Android-Geräten und Desktop-Browsern verwendet werden.
 
-> **Hinweis zur Verwendung:** Dieses Projekt ist ein technischer Prototyp. Vor einem Einsatz im Flugbetrieb müssen sämtliche Tabellenwerte, Annahmen und Ergebnisse gegen das aktuell freigegebene AFM/POH der konkreten DA40-Version geprüft und freigegeben werden.
+> **Hinweis zur Verwendung:** Dieses Projekt ist ein technischer Prototyp. Vor einem Einsatz im Flugbetrieb müssen sämtliche Tabellenwerte, Annahmen und Ergebnisse gegen das aktuell freigegebene AFM/POH der konkreten Version geprüft und freigegeben werden.
 
 ## Funktionen
 
