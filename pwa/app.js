@@ -28,23 +28,32 @@ function interpolation(table, xValue, yValue, label) {
 
 function fuelKg() {
   const amount = value('fuelAmount');
-  return amount * ($('fuelUnit').value === 'gal' ? 2.72 : 0.72);
+  const litres = $('fuelUnit').value === 'gal' ? amount * 3.785411784 : amount;
+  return litres * 0.72;
 }
 function updateMass() {
   const mass = ['emptyMass','pilotMass','copilotMass','rearMass','baggageMass'].reduce((sum,id) => sum + value(id), 0) + fuelKg();
   $('mass').value = mass.toFixed(1);
-  $('fuelKg').textContent = `≈ ${fuelKg().toLocaleString('de-DE',{maximumFractionDigits:1})} kg`;
+  const fuelUnitText = $('fuelUnit').value === 'gal' ? '1 US gal = 3,785 l' : '1 l';
+  $('fuelKg').textContent = `≈ ${fuelKg().toLocaleString('de-DE',{maximumFractionDigits:1})} kg (${fuelUnitText}; 0,72 kg/l)`;
   return mass;
 }
 function setAltitudeMode() {
-  const direct = $('altitudeMode').value === 'direct';
-  $('airportField').classList.toggle('hidden', direct);
-  $('qnhField').classList.toggle('hidden', direct);
+  const direct = document.querySelector('input[name="altitudeMode"]:checked').value === 'direct';
+  const airportControls = [$('airport'), $('qnh'), $('qnhMode')];
+  const directControls = [$('pressureAltitude')];
+  airportControls.forEach(control => {
+    control.disabled = direct;
+    control.closest('label').classList.toggle('disabled-field', direct);
+  });
+  directControls.forEach(control => {
+    control.disabled = !direct;
+    control.closest('label').classList.toggle('disabled-field', !direct);
+  });
   $('calculatedPressureField').classList.toggle('hidden', direct);
-  $('directPressureField').classList.toggle('hidden', !direct);
 }
 function pressureAltitude() {
-  if ($('altitudeMode').value === 'direct') return value('pressureAltitude');
+  if (document.querySelector('input[name="altitudeMode"]:checked').value === 'direct') return value('pressureAltitude');
   if (!selectedAirport) throw Error('Startplatz: gültigen ICAO-Code eingeben');
   const qnh = value('qnh');
   if (!Number.isFinite(qnh) || qnh < 850 || qnh > 1100) throw Error('QNH: Wert zwischen 850 und 1100 hPa eingeben');
@@ -111,8 +120,11 @@ document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input
 document.querySelectorAll('select').forEach(el=>el.addEventListener('change',()=>{
   setAltitudeMode();
   if (el.id === 'aircraft') $('aircraftEyebrow').textContent = AIRCRAFT[el.value].name;
+  if (['emptyMass','pilotMass','copilotMass','rearMass','baggageMass','fuelAmount','fuelUnit'].includes(el.id)) updateMass();
   render();
 }));
+document.querySelectorAll('input[name="altitudeMode"]').forEach(el=>el.addEventListener('change',()=>{ setAltitudeMode(); render(); }));
+['emptyMass','pilotMass','copilotMass','rearMass','baggageMass','fuelAmount'].forEach(id=>$(id).addEventListener('input',updateMass));
 $('airport').addEventListener('change',()=>{loadAirport($('airport').value); loadQnh();});
 $('airport').addEventListener('blur',()=>{loadAirport($('airport').value); loadQnh();});
 $('qnhMode').addEventListener('change',loadQnh);

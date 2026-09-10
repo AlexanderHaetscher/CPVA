@@ -26,9 +26,13 @@
           <label>Flugzeug
             <select id="aircraft"><option value="DA40">Diamond DA40</option><option value="PANTHERA">Panthera (Daten folgen)</option><option value="VL3">VL3 (Daten folgen)</option><option value="GYRO">Gyro (Daten folgen)</option></select>
           </label>
-          <label>Höhenquelle
-            <select id="altitudeMode"><option value="airport" selected>Startplatz und QNH</option><option value="direct">Druckhöhe direkt</option></select>
-          </label>
+          <fieldset class="mode-field">
+            <legend>Höhenquelle</legend>
+            <div class="mode-switch" role="radiogroup" aria-label="Höhenquelle">
+              <label><input type="radio" name="altitudeMode" value="airport" checked><span>Startplatz + QNH</span></label>
+              <label><input type="radio" name="altitudeMode" value="direct"><span>Druckhöhe direkt</span></label>
+            </div>
+          </fieldset>
           <label id="airportField">Startplatz <span>[ICAO]</span>
             <input id="airport" type="text" maxlength="4" pattern="[A-Za-z]{4}" placeholder="z. B. EDDF" autocomplete="off" autocapitalize="characters">
             <small id="airportStatus">ICAO-Code eingeben; Platzhöhe wird automatisch geladen.</small>
@@ -37,10 +41,10 @@
             <div class="inline-input"><input id="qnh" type="number" min="850" max="1100" step="1" value="1013" inputmode="numeric"><select id="qnhMode" aria-label="QNH-Quelle"><option value="manual">Manuell</option><option value="auto" selected>Automatisch (METAR)</option></select></div>
             <small id="qnhStatus">Für automatische Abfrage ICAO-Code eingeben.</small>
           </label>
-          <label id="directPressureField" class="hidden">Druckhöhe <span>[ft]</span>
+          <label id="directPressureField">Druckhöhe <span>[ft]</span>
             <input id="pressureAltitude" type="number" min="0" max="10000" step="100" value="0" inputmode="numeric">
           </label>
-          <label id="calculatedPressureField">Berechnete Druckhöhe <span>[ft]</span>
+          <label id="calculatedPressureField" class="hidden">Berechnete Druckhöhe <span>[ft]</span>
             <input id="calculatedPressureAltitude" type="number" readonly>
           </label>
           <label>Platzhöhe <span>[ft]</span><input id="airportElevation" type="number" readonly placeholder="wird geladen"></label>
@@ -57,10 +61,10 @@
           <label>Gepäck <span>[kg]</span><input id="baggageMass" type="number" min="0" step="0.1" value="20" inputmode="decimal"></label>
           <label>Treibstoff
             <div class="inline-input"><input id="fuelAmount" type="number" min="0" step="0.1" value="50" inputmode="decimal"><select id="fuelUnit" aria-label="Treibstoffeinheit"><option value="gal">US gal</option><option value="l">Liter</option></select></div>
-            <small id="fuelKg">≈ 136,0 kg</small>
+            <small id="fuelKg">≈ 136,3 kg (1 US gal = 3,785 l; 0,72 kg/l)</small>
           </label>
           <label>Startmasse <span>[kg]</span><input id="mass" type="number" readonly></label>
-          <label>Maximale Tabellenmasse <span>[kg]</span><input id="maxMass" type="number" readonly value="1200"></label>
+          <label>Maximale Tabellenmasse <span>[kg]</span><small id="maxMass">DA40: 1.200 kg</small></label>
         </div>
       </section>
       <section class="card">
