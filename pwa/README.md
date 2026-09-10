@@ -1,4 +1,4 @@
-# DA40 Startstreckenrechner als PWA
+# CPVA Startstreckenrechner als PWA
 
 Die Anwendung ist eine rein lokale, offlinefähige PWA. Für die Installation auf einem Smartphone muss sie über HTTPS oder während der Entwicklung über `localhost` ausgeliefert werden.
 
