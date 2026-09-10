@@ -29,7 +29,7 @@ input[readonly] { background:#f3f7fa; color:var(--muted); }
 .mode-switch { display:grid; grid-template-columns:1fr 1fr; min-height:45px; overflow:hidden; border:1px solid #b9c9d3; border-radius:10px; background:#f3f7fa; }
 .mode-switch label { position:relative; display:flex; align-items:center; justify-content:center; margin:0; padding:8px 10px; color:var(--muted); font-size:.88rem; cursor:pointer; }
 .mode-switch input { position:absolute; width:1px; height:1px; opacity:0; }
-.mode-switch label:has(input:checked) { background:var(--blue); color:#fff; }
+.mode-switch label:has(input:checked) { background: #b9d9e8; color: #173b57; }
 .mode-switch label:has(input:focus-visible) { outline:3px solid rgb(36 107 145 / 18%); }
 .disabled-field { opacity:.48; }
 .disabled-field input, .disabled-field select { background:#eef2f4; cursor:not-allowed; }
