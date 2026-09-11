@@ -7,7 +7,7 @@ const DATA = {
 const AIRCRAFT = { DA40: { name: 'Diamond DA40', maxMass: 1200, ready: true }, PANTHERA: { name: 'Panthera', ready: false }, VL3: { name: 'VL3', ready: false }, GYRO: { name: 'Gyro', ready: false } };
 const FACTORS = {'Kein Gras':1,'Gras <5 cm':1.10,'Gras 5-10 cm':1.15,'Gras >10 cm':1.25};
 const AIRPORTS_URL = 'https://raw.githubusercontent.com/mborsetti/airportsdata/main/airportsdata/airports.csv';
-const WINDY_API_KEY = 'YbdYOxKzuBsJjyLmls4nsYuWluTQIMj3';
+const WINDY_API_KEY = ''; // Nur lokal eintragen; niemals committen.
 const $ = id => document.getElementById(id);
 const value = id => Number($(id).value);
 let airportRows;
@@ -84,7 +84,7 @@ function render() {
     const r=calculate();
     $('resultValue').textContent=r.final.toLocaleString('de-DE');
     $('resultStatus').textContent='Berechnung vollständig'; $('resultStatus').style.color='#236143';
-    const rows=[['Druckhöhe',`${r.pa.toLocaleString('de-DE')} ft`],['Dichtehöhe',r.da],['Startmasse',`${r.mass.toLocaleString('de-DE',{maximumFractionDigits:1})} kg`],['Basisstrecke',r.base],['Nach Masse',r.massDistance],['Nach Wind',r.windDistance],['Ãœber Hindernis',r.obstacleDistance],['Grasfaktor',`${r.grass.toFixed(2)}Ã—`],['Nässefaktor',`${r.wet.toFixed(2)}Ã—`],['Steigungsfaktor',`${r.slope.toFixed(2)}Ã—`]];
+    const rows=[['Druckhöhe',`${r.pa.toLocaleString('de-DE')} ft`],['Dichtehöhe',r.da],['Startmasse',`${r.mass.toLocaleString('de-DE',{maximumFractionDigits:1})} kg`],['Basisstrecke',r.base],['Nach Masse',r.massDistance],['Nach Wind',r.windDistance],['Über Hindernis',r.obstacleDistance],['Grasfaktor',`${r.grass.toFixed(2)}×`],['Nässefaktor',`${r.wet.toFixed(2)}×`],['Steigungsfaktor',`${r.slope.toFixed(2)}×`]];
     $('steps').innerHTML=rows.map(([k,v])=>`<dt>${k}</dt><dd>${typeof v==='number'?v.toLocaleString('de-DE',{maximumFractionDigits:1})+' m':v}</dd>`).join('');
   } catch (error) { $('resultValue').textContent='—'; $('resultStatus').textContent=error.message; $('resultStatus').style.color='#a43a33'; }
 }
@@ -205,5 +205,4 @@ $('qnhMode').addEventListener('change',loadQnh);
 setAltitudeMode(); updateMass(); render();
 window.addEventListener('online',()=>{ $('offlineBadge').textContent='Online'; $('offlineBadge').style.background='#dceef5'; });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
-
 
