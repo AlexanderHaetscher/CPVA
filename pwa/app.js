@@ -7,7 +7,7 @@ const DATA = {
 const AIRCRAFT = { DA40: { name: 'Diamond DA40', maxMass: 1200, ready: true }, PANTHERA: { name: 'Panthera', ready: false }, VL3: { name: 'VL3', ready: false }, GYRO: { name: 'Gyro', ready: false } };
 const FACTORS = {'Kein Gras':1,'Gras <5 cm':1.10,'Gras 5-10 cm':1.15,'Gras >10 cm':1.25};
 const AIRPORTS_URL = 'https://raw.githubusercontent.com/mborsetti/airportsdata/main/airportsdata/airports.csv';
-const WINDY_API_KEY = 'YbdYOxKzuBsJjyLmls4nsYuWluTQIMj3'; 
+const WINDY_API_KEY = 'YbdYOxKzuBsJjyLmls4nsYuWluTQIMj3';
 const $ = id => document.getElementById(id);
 const value = id => Number($(id).value);
 let airportRows;
@@ -18,11 +18,11 @@ function interpolation(table, xValue, yValue, label) {
   if (!Number.isFinite(xValue) || !Number.isFinite(yValue)) throw Error(`${label}: Eingabe fehlt`);
   const xi = x.findIndex((v,i) => xValue >= v && (i === x.length-1 || xValue <= x[i+1]));
   const yi = y.findIndex((v,i) => yValue >= v && (i === y.length-1 || yValue <= y[i+1]));
-  if (xi < 0 || yi < 0 || xValue < x[0] || xValue > x.at(-1) || yValue < y[0] || yValue > y.at(-1)) throw Error(`${label}: auÃŸerhalb des Tabellenbereichs`);
-  if (table === DATA.base && yValue > 8000 && xValue > 30) throw Error('10.000 ft: nur bis 30 Â°C verfÃ¼gbar');
+  if (xi < 0 || yi < 0 || xValue < x[0] || xValue > x.at(-1) || yValue < y[0] || yValue > y.at(-1)) throw Error(`${label}: außerhalb des Tabellenbereichs`);
+  if (table === DATA.base && yValue > 8000 && xValue > 30) throw Error('10.000 ft: nur bis 30 °C verfügbar');
   const x0=x[xi], x1=x[Math.min(xi+1,x.length-1)], y0=y[yi], y1=y[Math.min(yi+1,y.length-1)];
   const q11=values[yi][xi], q21=values[yi][Math.min(xi+1,x.length-1)], q12=values[Math.min(yi+1,y.length-1)][xi], q22=values[Math.min(yi+1,y.length-1)][Math.min(xi+1,x.length-1)];
-  if ([q11,q21,q12,q22].some(v => v == null || !Number.isFinite(v))) throw Error(`${label}: fÃ¼r diese Kombination sind keine Werte hinterlegt`);
+  if ([q11,q21,q12,q22].some(v => v == null || !Number.isFinite(v))) throw Error(`${label}: für diese Kombination sind keine Werte hinterlegt`);
   const tx=x1===x0?0:(xValue-x0)/(x1-x0), ty=y1===y0?0:(yValue-y0)/(y1-y0);
   return q11*(1-tx)*(1-ty)+q21*tx*(1-ty)+q12*(1-tx)*ty+q22*tx*ty;
 }
@@ -36,7 +36,7 @@ function updateMass() {
   const mass = ['emptyMass','pilotMass','copilotMass','rearMass','baggageMass'].reduce((sum,id) => sum + value(id), 0) + fuelKg();
   $('mass').value = mass.toFixed(1);
   const fuelUnitText = $('fuelUnit').value === 'gal' ? '1 US gal = 3,785 l' : '1 l';
-  $('fuelKg').textContent = `â‰ˆ ${fuelKg().toLocaleString('de-DE',{maximumFractionDigits:1})} kg (${fuelUnitText}; 0,72 kg/l)`;
+  $('fuelKg').textContent = `≈ ${fuelKg().toLocaleString('de-DE',{maximumFractionDigits:1})} kg (${fuelUnitText}; 0,72 kg/l)`;
   return mass;
 }
 function setAltitudeMode() {
@@ -55,7 +55,7 @@ function setAltitudeMode() {
 }
 function pressureAltitude() {
   if (document.querySelector('input[name="altitudeMode"]:checked').value === 'direct') return value('pressureAltitude');
-  if (!selectedAirport) throw Error('Startplatz: gÃ¼ltigen ICAO-Code eingeben');
+  if (!selectedAirport) throw Error('Startplatz: gültigen ICAO-Code eingeben');
   const qnh = value('qnh');
   if (!Number.isFinite(qnh) || qnh < 850 || qnh > 1100) throw Error('QNH: Wert zwischen 850 und 1100 hPa eingeben');
   const pa = Math.round(selectedAirport.elevation + (1013.25 - qnh) * 30);
@@ -68,7 +68,7 @@ function densityAltitude(pa, temperature) {
 }
 function calculate() {
   const aircraft = AIRCRAFT[$('aircraft').value];
-  if (!aircraft.ready) throw Error(`${aircraft.name}: Tabellenwerte werden noch ergÃ¤nzt`);
+  if (!aircraft.ready) throw Error(`${aircraft.name}: Tabellenwerte werden noch ergänzt`);
   const mass=updateMass(), pa=pressureAltitude(), temp=value('temperature'), wind=value('wind'), obstacle=value('obstacleHeight');
   const da=densityAltitude(pa,temp);
   $('densityAltitude').value = da;
@@ -83,10 +83,10 @@ function render() {
   try {
     const r=calculate();
     $('resultValue').textContent=r.final.toLocaleString('de-DE');
-    $('resultStatus').textContent='Berechnung vollstÃ¤ndig'; $('resultStatus').style.color='#236143';
-    const rows=[['DruckhÃ¶he',`${r.pa.toLocaleString('de-DE')} ft`],['DichtehÃ¶he',r.da],['Startmasse',`${r.mass.toLocaleString('de-DE',{maximumFractionDigits:1})} kg`],['Basisstrecke',r.base],['Nach Masse',r.massDistance],['Nach Wind',r.windDistance],['Ãœber Hindernis',r.obstacleDistance],['Grasfaktor',`${r.grass.toFixed(2)}Ã—`],['NÃ¤ssefaktor',`${r.wet.toFixed(2)}Ã—`],['Steigungsfaktor',`${r.slope.toFixed(2)}Ã—`]];
+    $('resultStatus').textContent='Berechnung vollständig'; $('resultStatus').style.color='#236143';
+    const rows=[['Druckhöhe',`${r.pa.toLocaleString('de-DE')} ft`],['Dichtehöhe',r.da],['Startmasse',`${r.mass.toLocaleString('de-DE',{maximumFractionDigits:1})} kg`],['Basisstrecke',r.base],['Nach Masse',r.massDistance],['Nach Wind',r.windDistance],['Ãœber Hindernis',r.obstacleDistance],['Grasfaktor',`${r.grass.toFixed(2)}Ã—`],['Nässefaktor',`${r.wet.toFixed(2)}Ã—`],['Steigungsfaktor',`${r.slope.toFixed(2)}Ã—`]];
     $('steps').innerHTML=rows.map(([k,v])=>`<dt>${k}</dt><dd>${typeof v==='number'?v.toLocaleString('de-DE',{maximumFractionDigits:1})+' m':v}</dd>`).join('');
-  } catch (error) { $('resultValue').textContent='â€”'; $('resultStatus').textContent=error.message; $('resultStatus').style.color='#a43a33'; }
+  } catch (error) { $('resultValue').textContent='—'; $('resultStatus').textContent=error.message; $('resultStatus').style.color='#a43a33'; }
 }
 function parseCsvRow(line) {
   return line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(cell => cell.replace(/^"|"$/g,'').replace(/""/g,'"'));
@@ -113,14 +113,14 @@ async function getAirportCatalog() {
 async function loadAirport(icao) {
   const code=icao.trim().toUpperCase();
   if (!/^[A-Z]{4}$/.test(code)) { selectedAirport=null; $('airportStatus').textContent='Bitte einen vierstelligen ICAO-Code eingeben.'; render(); return; }
-  $('airportStatus').textContent='Flugplatzdaten werden geladen â€¦';
+  $('airportStatus').textContent='Flugplatzdaten werden geladen …';
   try {
     const rows = await getAirportCatalog();
     const row = rows.find(item => item.icao.toUpperCase()===code);
     if (!row) { selectedAirport=null; $('airportStatus').textContent='ICAO-Code nicht in airportsdata gefunden.'; render(); return; }
     selectedAirport={icao:row.icao,name:row.name,elevation:Number(row.elevation),lat:row.lat,lon:row.lon};
     $('airportElevation').value=selectedAirport.elevation;
-    $('airportStatus').textContent=`${selectedAirport.name} â€“ ${selectedAirport.elevation} ft`;
+    $('airportStatus').textContent=`${selectedAirport.name} – ${selectedAirport.elevation} ft`;
     render();
   } catch (error) {
     selectedAirport=null;
@@ -161,7 +161,7 @@ async function getWindyPressure(code) {
 async function loadQnh() {
   const code=$('airport').value.trim().toUpperCase();
   if ($('qnhMode').value !== 'auto' || !/^[A-Z]{4}$/.test(code)) return;
-  $('qnhStatus').textContent='QNH wird aus METAR geladen â€¦';
+  $('qnhStatus').textContent='QNH wird aus METAR geladen …';
   try {
     const response=await fetch(`https://aviationweather.gov/api/data/metar?ids=${code}&format=json`);
     if (response.ok) {
@@ -187,7 +187,7 @@ async function loadQnh() {
       render();
       return;
     }
-    throw Error('Kein aktuelles QNH verfÃ¼gbar');
+    throw Error('Kein aktuelles QNH verfügbar');
   } catch (error) { $('qnhStatus').textContent=`Automatische Abfrage fehlgeschlagen: ${error.message}. Bitte manuell eingeben.`; }
 }
 document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',render));
