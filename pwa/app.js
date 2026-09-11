@@ -1,4 +1,4 @@
-﻿const DATA = {
+const DATA = {
   base: { x: [-20,-10,0,10,20,30,40,50], y: [0,2000,4000,6000,8000,10000], values: [[210,230,260,280,330,360,400,440],[270,300,330,360,410,450,500,560],[340,370,410,450,520,580,640,700],[410,460,520,580,660,740,840,960],[510,600,680,770,880,1020,1220,1520],[680,780,880,1020,1220,1480,null,null]] },
   mass: { x: [100,200,300,400,500,600,700,800,900,1000,1100,1200], y: [850,950,1050,1150,1200], values: [[100,100,100,200,230,280,310,330,360,400,430,500],[100,100,140,260,300,360,400,440,480,500,580,680],[100,110,210,300,370,430,520,590,630,680,760,860],[100,160,260,360,440,540,610,710,780,880,980,1180],[100,200,300,400,500,600,700,800,900,1000,1100,1200]] },
   wind: { x: [200,300,400,500,600,700,800,900,1000,1100,1200], y: [-5,0,5,10,15,20], values: [[240,350,460,570,680,790,900,1010,1120,1230,1340],[200,300,400,500,600,700,800,900,1000,1100,1200],[170,260,340,440,520,600,680,770,860,950,1040],[140,220,290,350,440,520,580,700,730,810,900],[110,170,260,310,380,440,510,600,660,750,840],[100,140,160,240,320,400,460,540,600,670,740]] },
@@ -71,7 +71,7 @@ function calculate() {
   if (!aircraft.ready) throw Error(`${aircraft.name}: Tabellenwerte werden noch ergÃ¤nzt`);
   const mass=updateMass(), pa=pressureAltitude(), temp=value('temperature'), wind=value('wind'), obstacle=value('obstacleHeight');
   const da=densityAltitude(pa,temp);
-  densityAltitude.value = da;
+  $('densityAltitude').value = da;
   const base=interpolation(DATA.base,temp,pa,'Basisstrecke');
   const massDistance=interpolation(DATA.mass,base,mass,'Masse');
   const windDistance=interpolation(DATA.wind,massDistance,wind,'Wind');
