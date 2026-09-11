@@ -62,23 +62,29 @@ function pressureAltitude() {
   $('calculatedPressureAltitude').value = pa;
   return pa;
 }
+function densityAltitude(pa, temperature) {
+  const isaTemperature = 15 - 2 * (pa / 1000);
+  return Math.round(pa + 120 * (temperature - isaTemperature));
+}
 function calculate() {
   const aircraft = AIRCRAFT[$('aircraft').value];
   if (!aircraft.ready) throw Error(`${aircraft.name}: Tabellenwerte werden noch ergänzt`);
   const mass=updateMass(), pa=pressureAltitude(), temp=value('temperature'), wind=value('wind'), obstacle=value('obstacleHeight');
+  const da=densityAltitude(pa,temp);
+  densityAltitude.value = da;
   const base=interpolation(DATA.base,temp,pa,'Basisstrecke');
   const massDistance=interpolation(DATA.mass,base,mass,'Masse');
   const windDistance=interpolation(DATA.wind,massDistance,wind,'Wind');
   const obstacleDistance=interpolation(DATA.obstacle,windDistance,obstacle,'Hindernis');
   const factors={grass:FACTORS[$('grass').value],wet:$('wet').value==='Ja'?1.1:1,slope:$('slope').value==='Ja'?1.1:1};
-  return {final:Math.round(obstacleDistance*factors.grass*factors.wet*factors.slope),base,mass,massDistance,windDistance,obstacleDistance,pa,...factors};
+  return {final:Math.round(obstacleDistance*factors.grass*factors.wet*factors.slope),base,mass,massDistance,windDistance,obstacleDistance,pa,da,...factors};
 }
 function render() {
   try {
     const r=calculate();
     $('resultValue').textContent=r.final.toLocaleString('de-DE');
     $('resultStatus').textContent='Berechnung vollständig'; $('resultStatus').style.color='#236143';
-    const rows=[['Druckhöhe',`${r.pa.toLocaleString('de-DE')} ft`],['Startmasse',`${r.mass.toLocaleString('de-DE',{maximumFractionDigits:1})} kg`],['Basisstrecke',r.base],['Nach Masse',r.massDistance],['Nach Wind',r.windDistance],['Über Hindernis',r.obstacleDistance],['Grasfaktor',`${r.grass.toFixed(2)}×`],['Nässefaktor',`${r.wet.toFixed(2)}×`],['Steigungsfaktor',`${r.slope.toFixed(2)}×`]];
+    const rows=[['Druckhöhe',`${r.pa.toLocaleString('de-DE')} ft`],['Dichtehöhe',r.da],['Startmasse',`${r.mass.toLocaleString('de-DE',{maximumFractionDigits:1})} kg`],['Basisstrecke',r.base],['Nach Masse',r.massDistance],['Nach Wind',r.windDistance],['Über Hindernis',r.obstacleDistance],['Grasfaktor',`${r.grass.toFixed(2)}×`],['Nässefaktor',`${r.wet.toFixed(2)}×`],['Steigungsfaktor',`${r.slope.toFixed(2)}×`]];
     $('steps').innerHTML=rows.map(([k,v])=>`<dt>${k}</dt><dd>${typeof v==='number'?v.toLocaleString('de-DE',{maximumFractionDigits:1})+' m':v}</dd>`).join('');
   } catch (error) { $('resultValue').textContent='—'; $('resultStatus').textContent=error.message; $('resultStatus').style.color='#a43a33'; }
 }
