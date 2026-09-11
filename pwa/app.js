@@ -34,7 +34,7 @@ function fuelKg() {
 }
 function updateMass() {
   const mass = ['emptyMass','pilotMass','copilotMass','rearMass','baggageMass'].reduce((sum,id) => sum + value(id), 0) + fuelKg();
-  $('mass').value = mass > 1150 ? mass.toFixed(3) : mass.toFixed(1);
+  $('mass').value = mass.toFixed(1);
   $('mass').classList.toggle('overweight-field', mass > 1150);
   const fuelUnitText = $('fuelUnit').value === 'gal' ? '1 US gal = 3,785 l' : '1 l';
   $('fuelKg').textContent = `≈ ${fuelKg().toLocaleString('de-DE',{maximumFractionDigits:1})} kg (${fuelUnitText}; 0,72 kg/l)`;
@@ -88,7 +88,7 @@ function render() {
     $('resultValue').classList.toggle('overweight-value', overweight);
     $('mass').classList.toggle('overweight-field', overweight);
     $('resultStatus').textContent='Berechnung vollständig'; $('resultStatus').style.color='#236143';
-    const rows=[['Druckhöhe',`${r.pa.toLocaleString('de-DE')} ft`],['Dichtehöhe',r.da],['Startmasse',`${r.mass.toLocaleString('de-DE',{maximumFractionDigits:overweight?3:1})} kg`],['Basisstrecke',r.base],['Nach Masse',r.massDistance],['Nach Wind',r.windDistance],['Über Hindernis',r.obstacleDistance],['Grasfaktor',`${r.grass.toFixed(2)}×`],['Nässefaktor',`${r.wet.toFixed(2)}×`],['Steigungsfaktor',`${r.slope.toFixed(2)}×`]];
+    const rows=[['Druckhöhe',`${r.pa.toLocaleString('de-DE')} ft`],['Dichtehöhe',r.da],['Startmasse',`${r.mass.toLocaleString('de-DE',{maximumFractionDigits:1})} kg`],['Basisstrecke',r.base],['Nach Masse',r.massDistance],['Nach Wind',r.windDistance],['Über Hindernis',r.obstacleDistance],['Grasfaktor',`${r.grass.toFixed(2)}×`],['Nässefaktor',`${r.wet.toFixed(2)}×`],['Steigungsfaktor',`${r.slope.toFixed(2)}×`]];
     $('steps').innerHTML=rows.map(([k,v])=>`<dt>${k}</dt><dd>${typeof v==='number'?v.toLocaleString('de-DE',{maximumFractionDigits:1})+' m':v}</dd>`).join('');
   } catch (error) {
     $('resultValue').textContent='—';

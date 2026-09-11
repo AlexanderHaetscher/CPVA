@@ -42,6 +42,6 @@ dt { color:var(--muted); } dd { margin:0; font-variant-numeric:tabular-nums; fon
 footer { color:var(--muted); font-size:.76rem; padding:0 4px; }
 footer p { margin:18px 0 0; }
 .has-error { border-color:#c94b43; background:var(--error); }
-.overweight-field { border-color:#c94b43; background:var(--error) !important; color:#a43a33 !important; font-weight:800; }
+.overweight-field { border-color:#c94b43; background:var(--error) !important; color:#a43a33 !important; font-size:1.15em; font-weight:800; }
 .overweight-value { color:#c03932 !important; font-weight:800; text-decoration:line-through; text-decoration-thickness:3px; }
 @media (max-width:540px) { .app-shell { padding:16px 12px 28px; } .app-header { margin-bottom:14px; } .form-grid { grid-template-columns:1fr; gap:13px; } .card { padding:17px; } .result-card { min-height:130px; padding:19px; } }
