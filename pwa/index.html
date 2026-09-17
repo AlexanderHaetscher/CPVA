@@ -37,7 +37,7 @@
           <label id="densityAltitudeField">Berechnete Dichtehöhe <span>[ft]</span>
             <input id="densityAltitude" type="number" readonly>
           </label>
-          <label>Platzhöhe <span>[ft]</span><input id="airportElevation" type="number" readonly placeholder="wird geladen"></label>
+          <label>Platzhöhe <span>[ft]</span><input id="airportElevation" type="number" min="-1000" max="20000" step="1" placeholder="z. B. 2077" inputmode="numeric"><small>Wird bei erkanntem ICAO-Code automatisch eingetragen, kann aber überschrieben werden.</small></label>
           <label>Außentemperatur <span>[°C]</span><input id="temperature" type="number" min="-20" max="50" step="1" value="15" inputmode="decimal"></label>
         </div>
       </section>

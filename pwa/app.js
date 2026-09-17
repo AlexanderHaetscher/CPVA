@@ -41,10 +41,11 @@ function updateMass() {
   return mass;
 }
 function pressureAltitude() {
-  if (!selectedAirport) throw Error('Startplatz: gültigen ICAO-Code eingeben');
+  const elevation = value('airportElevation');
+  if (!Number.isFinite(elevation) || elevation < -1000 || elevation > 20000) throw Error('Platzhöhe: Wert zwischen -1.000 und 20.000 ft eingeben');
   const qnh = value('qnh');
   if (!Number.isFinite(qnh) || qnh < 850 || qnh > 1100) throw Error('QNH: Wert zwischen 850 und 1100 hPa eingeben');
-  return Math.round(selectedAirport.elevation + (1013.25 - qnh) * 30);
+  return Math.round(elevation + (1013.25 - qnh) * 30);
 }
 function densityAltitude(pa, temperature) {
   const isaTemperature = 15 - 2 * (pa / 1000);
@@ -116,7 +117,7 @@ async function loadAirport(icao) {
   try {
     const rows = await getAirportCatalog();
     const row = rows.find(item => item.icao.toUpperCase()===code);
-    if (!row) { selectedAirport=null; $('airportStatus').textContent='ICAO-Code nicht in airportsdata gefunden.'; render(); return; }
+    if (!row) { selectedAirport=null; $('airportStatus').textContent='ICAO-Code nicht gefunden. Platzhöhe bitte manuell eingeben.'; render(); return; }
     selectedAirport={icao:row.icao,name:row.name,elevation:Number(row.elevation),lat:row.lat,lon:row.lon};
     $('airportElevation').value=selectedAirport.elevation;
     $('airportStatus').textContent=`${selectedAirport.name} – ${selectedAirport.elevation} ft`;
