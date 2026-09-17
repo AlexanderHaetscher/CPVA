@@ -40,28 +40,11 @@ function updateMass() {
   $('fuelKg').textContent = `≈ ${fuelKg().toLocaleString('de-DE',{maximumFractionDigits:1})} kg (${fuelUnitText}; 0,72 kg/l)`;
   return mass;
 }
-function setAltitudeMode() {
-  const direct = document.querySelector('input[name="altitudeMode"]:checked').value === 'direct';
-  const airportControls = [$('airport'), $('qnh'), $('qnhMode')];
-  const directControls = [$('pressureAltitude')];
-  airportControls.forEach(control => {
-    control.disabled = direct;
-    control.closest('label').classList.toggle('disabled-field', direct);
-  });
-  directControls.forEach(control => {
-    control.disabled = !direct;
-    control.closest('label').classList.toggle('disabled-field', !direct);
-  });
-  $('calculatedPressureField').classList.toggle('hidden', direct);
-}
 function pressureAltitude() {
-  if (document.querySelector('input[name="altitudeMode"]:checked').value === 'direct') return value('pressureAltitude');
   if (!selectedAirport) throw Error('Startplatz: gültigen ICAO-Code eingeben');
   const qnh = value('qnh');
   if (!Number.isFinite(qnh) || qnh < 850 || qnh > 1100) throw Error('QNH: Wert zwischen 850 und 1100 hPa eingeben');
-  const pa = Math.round(selectedAirport.elevation + (1013.25 - qnh) * 30);
-  $('calculatedPressureAltitude').value = pa;
-  return pa;
+  return Math.round(selectedAirport.elevation + (1013.25 - qnh) * 30);
 }
 function densityAltitude(pa, temperature) {
   const isaTemperature = 15 - 2 * (pa / 1000);
@@ -84,17 +67,24 @@ function render() {
   try {
     const r=calculate();
     $('resultValue').textContent=r.final.toLocaleString('de-DE');
+    $('resultValueBottom').textContent=r.final.toLocaleString('de-DE');
     const overweight = r.mass > 1150;
     $('resultValue').classList.toggle('overweight-value', overweight);
+    $('resultValueBottom').classList.toggle('overweight-value', overweight);
     $('mass').classList.toggle('overweight-field', overweight);
     $('resultStatus').textContent='Berechnung vollständig'; $('resultStatus').style.color='#236143';
-    const rows=[['Druckhöhe',`${r.pa.toLocaleString('de-DE')} ft`],['Dichtehöhe',r.da],['Startmasse',`${r.mass.toLocaleString('de-DE',{maximumFractionDigits:1})} kg`],['Basisstrecke',r.base],['Nach Masse',r.massDistance],['Nach Wind',r.windDistance],['Über Hindernis',r.obstacleDistance],['Grasfaktor',`${r.grass.toFixed(2)}×`],['Nässefaktor',`${r.wet.toFixed(2)}×`],['Steigungsfaktor',`${r.slope.toFixed(2)}×`]];
+    $('resultStatusBottom').textContent='Berechnung vollständig'; $('resultStatusBottom').style.color='#236143';
+    const rows=[['Dichtehöhe',r.da],['Startmasse',`${r.mass.toLocaleString('de-DE',{maximumFractionDigits:1})} kg`],['Basisstrecke',r.base],['Nach Masse',r.massDistance],['Nach Wind',r.windDistance],['Über Hindernis',r.obstacleDistance],['Grasfaktor',`${r.grass.toFixed(2)}×`],['Nässefaktor',`${r.wet.toFixed(2)}×`],['Steigungsfaktor',`${r.slope.toFixed(2)}×`]];
     $('steps').innerHTML=rows.map(([k,v])=>`<dt>${k}</dt><dd>${typeof v==='number'?v.toLocaleString('de-DE',{maximumFractionDigits:1})+' m':v}</dd>`).join('');
   } catch (error) {
     $('resultValue').textContent='—';
+    $('resultValueBottom').textContent='—';
     $('resultValue').classList.remove('overweight-value');
+    $('resultValueBottom').classList.remove('overweight-value');
     $('resultStatus').textContent=error.message;
     $('resultStatus').style.color='#a43a33';
+    $('resultStatusBottom').textContent=error.message;
+    $('resultStatusBottom').style.color='#a43a33';
   }
 }
 function parseCsvRow(line) {
@@ -201,16 +191,14 @@ async function loadQnh() {
 }
 document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',render));
 document.querySelectorAll('select').forEach(el=>el.addEventListener('change',()=>{
-  setAltitudeMode();
   if (el.id === 'aircraft') $('aircraftEyebrow').textContent = AIRCRAFT[el.value].name;
   if (['emptyMass','pilotMass','copilotMass','rearMass','baggageMass','fuelAmount','fuelUnit'].includes(el.id)) updateMass();
   render();
 }));
-document.querySelectorAll('input[name="altitudeMode"]').forEach(el=>el.addEventListener('change',()=>{ setAltitudeMode(); render(); }));
 ['emptyMass','pilotMass','copilotMass','rearMass','baggageMass','fuelAmount'].forEach(id=>$(id).addEventListener('input',updateMass));
 $('airport').addEventListener('change',()=>{loadAirport($('airport').value); loadQnh();});
 $('airport').addEventListener('blur',()=>{loadAirport($('airport').value); loadQnh();});
 $('qnhMode').addEventListener('change',loadQnh);
-setAltitudeMode(); updateMass(); render();
+updateMass(); render();
 window.addEventListener('online',()=>{ $('offlineBadge').textContent='Online'; $('offlineBadge').style.background='#dceef5'; });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
