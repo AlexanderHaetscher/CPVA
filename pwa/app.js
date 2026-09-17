@@ -7,7 +7,6 @@ const DATA = {
 const AIRCRAFT = { DA40: { name: 'Diamond DA40', maxMass: 1200, ready: true }, PANTHERA: { name: 'Panthera', ready: false }, VL3: { name: 'VL3', ready: false }, GYRO: { name: 'Gyro', ready: false } };
 const FACTORS = {'Kein Gras':1,'Gras <5 cm':1.10,'Gras 5-10 cm':1.15,'Gras >10 cm':1.25};
 const AIRPORTS_URL = 'https://raw.githubusercontent.com/mborsetti/airportsdata/main/airportsdata/airports.csv';
-const WINDY_API_KEY = ''; // Nur lokal eintragen; niemals committen.
 const $ = id => document.getElementById(id);
 const value = id => Number($(id).value);
 let airportRows;
@@ -91,13 +90,6 @@ function render() {
 function parseCsvRow(line) {
   return line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(cell => cell.replace(/^"|"$/g,'').replace(/""/g,'"'));
 }
-function airportDistanceKm(a,b) {
-  if (!a || !b || !Number.isFinite(a.lat) || !Number.isFinite(a.lon) || !Number.isFinite(b.lat) || !Number.isFinite(b.lon)) return Number.POSITIVE_INFINITY;
-  const toRad = value => value * Math.PI / 180;
-  const lat1 = toRad(a.lat), lat2 = toRad(b.lat), dLat = toRad(b.lat - a.lat), dLon = toRad(b.lon - a.lon);
-  const hav = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
-  return 2 * 6371 * Math.asin(Math.sqrt(hav));
-}
 async function getAirportCatalog() {
   if (airportRows) return airportRows;
   const csv = await (await fetch(AIRPORTS_URL)).text();
@@ -128,68 +120,6 @@ async function loadAirport(icao) {
     render();
   }
 }
-async function getNearbyQnh(code) {
-  const rows = await getAirportCatalog();
-  const origin = rows.find(item => item.icao.toUpperCase()===code);
-  if (!origin) return null;
-  const candidates = rows.filter(item => item.icao.toUpperCase() !== code).map(item => ({ ...item, distanceKm: airportDistanceKm(origin, item) })).filter(item => Number.isFinite(item.distanceKm)).sort((a,b) => a.distanceKm - b.distanceKm).slice(0, 25);
-  for (const candidate of candidates) {
-    try {
-      const response = await fetch(`https://aviationweather.gov/api/data/metar?ids=${candidate.icao}&format=json`);
-      if (!response.ok) continue;
-      const reports = await response.json();
-      if (reports[0] && Number.isFinite(reports[0].altim)) return { qnh: reports[0].altim, source: candidate.icao };
-    } catch (error) {
-      continue;
-    }
-  }
-  return null;
-}
-async function getWindyPressure(code) {
-  if (!WINDY_API_KEY || !selectedAirport || !Number.isFinite(selectedAirport.lat) || !Number.isFinite(selectedAirport.lon)) return null;
-  const response = await fetch('https://api.windy.com/api/point-forecast/v2', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ lat: selectedAirport.lat, lon: selectedAirport.lon, model: 'iconD2', parameters: ['pressure'], levels: ['surface'], key: WINDY_API_KEY })
-  });
-  if (!response.ok) throw Error(`Windy-Dienst nicht erreichbar (${response.status})`);
-  const data = await response.json();
-  const pressurePa = Array.isArray(data['pressure-surface']) ? data['pressure-surface'].find(Number.isFinite) : null;
-  if (!Number.isFinite(pressurePa)) return null;
-  return { qnh: Math.round(pressurePa / 100), model: 'ICON-D2' };
-}
-async function loadQnh() {
-  const code=$('airport').value.trim().toUpperCase();
-  if ($('qnhMode').value !== 'auto' || !/^[A-Z]{4}$/.test(code)) return;
-  $('qnhStatus').textContent='QNH wird aus METAR geladen …';
-  try {
-    const response=await fetch(`https://aviationweather.gov/api/data/metar?ids=${code}&format=json`);
-    if (response.ok) {
-      const reports=await response.json();
-      if (reports[0] && Number.isFinite(reports[0].altim)) {
-        $('qnh').value=reports[0].altim;
-        $('qnhStatus').textContent=`Automatisch: ${reports[0].altim} hPa (Startplatz)`;
-        render();
-        return;
-      }
-    }
-    const fallback = await getNearbyQnh(code);
-    if (fallback) {
-      $('qnh').value=fallback.qnh;
-      $('qnhStatus').textContent=`Automatisch: ${fallback.qnh} hPa (Nachbarplatz ${fallback.source})`;
-      render();
-      return;
-    }
-    const windy = await getWindyPressure(code);
-    if (windy) {
-      $('qnh').value=windy.qnh;
-      $('qnhStatus').textContent=`Automatisch: ${windy.qnh} hPa (Windy ${windy.model}, ${code})`;
-      render();
-      return;
-    }
-    throw Error('Kein aktuelles QNH verfügbar');
-  } catch (error) { $('qnhStatus').textContent=`Automatische Abfrage fehlgeschlagen: ${error.message}. Bitte manuell eingeben.`; }
-}
 document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',render));
 document.querySelectorAll('select').forEach(el=>el.addEventListener('change',()=>{
   if (el.id === 'aircraft') $('aircraftEyebrow').textContent = AIRCRAFT[el.value].name;
@@ -197,9 +127,8 @@ document.querySelectorAll('select').forEach(el=>el.addEventListener('change',()=
   render();
 }));
 ['emptyMass','pilotMass','copilotMass','rearMass','baggageMass','fuelAmount'].forEach(id=>$(id).addEventListener('input',updateMass));
-$('airport').addEventListener('change',()=>{loadAirport($('airport').value); loadQnh();});
-$('airport').addEventListener('blur',()=>{loadAirport($('airport').value); loadQnh();});
-$('qnhMode').addEventListener('change',loadQnh);
+$('airport').addEventListener('change',()=>loadAirport($('airport').value));
+$('airport').addEventListener('blur',()=>loadAirport($('airport').value));
 updateMass(); render();
 window.addEventListener('online',()=>{ $('offlineBadge').textContent='Online'; $('offlineBadge').style.background='#dceef5'; });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
