@@ -26,13 +26,6 @@
           <label>Flugzeug
             <select id="aircraft"><option value="DA40">Diamond DA40</option><option value="PANTHERA">Panthera (Daten folgen)</option><option value="VL3">VL3 (Daten folgen)</option><option value="GYRO">Gyro (Daten folgen)</option></select>
           </label>
-          <fieldset class="mode-field">
-            <legend>Höhenquelle</legend>
-            <div class="mode-switch" role="radiogroup" aria-label="Höhenquelle">
-              <label><input type="radio" name="altitudeMode" value="airport" checked><span>Startplatz + QNH</span></label>
-              <label><input type="radio" name="altitudeMode" value="direct"><span>Druckhöhe direkt</span></label>
-            </div>
-          </fieldset>
           <label id="airportField">Startplatz <span>[ICAO]</span>
             <input id="airport" type="text" maxlength="4" pattern="[A-Za-z]{4}" placeholder="z. B. EDDF" autocomplete="off" autocapitalize="characters">
             <small id="airportStatus">ICAO-Code eingeben; Platzhöhe wird automatisch geladen.</small>
@@ -40,12 +33,6 @@
           <label id="qnhField">QNH
             <div class="inline-input"><input id="qnh" type="number" min="850" max="1100" step="1" value="1013" inputmode="numeric"><select id="qnhMode" aria-label="QNH-Quelle"><option value="manual">Manuell</option><option value="auto" selected>Automatisch (METAR)</option></select></div>
             <small id="qnhStatus">Für automatische Abfrage ICAO-Code eingeben.</small>
-          </label>
-          <label id="directPressureField">Druckhöhe <span>[ft]</span>
-            <input id="pressureAltitude" type="number" min="0" max="10000" step="100" value="0" inputmode="numeric">
-          </label>
-          <label id="calculatedPressureField" class="hidden">Berechnete Druckhöhe <span>[ft]</span>
-            <input id="calculatedPressureAltitude" type="number" readonly>
           </label>
           <label id="densityAltitudeField">Berechnete Dichtehöhe <span>[ft]</span>
             <input id="densityAltitude" type="number" readonly>
@@ -81,6 +68,9 @@
         </div>
       </section>
     </form>
+    <section class="result-card" aria-live="polite">
+      <div><p class="result-label">Startstrecke über Hindernis</p><p class="result-value"><span id="resultValueBottom">—</span> <span class="result-unit">m</span></p><p id="resultStatusBottom" class="result-status">Eingaben vollständig ausfüllen</p></div>
+    </section>
     <section class="card steps-card"><details><summary>Berechnungsschritte anzeigen</summary><dl id="steps"></dl></details></section>
     <footer><p>Quelle und Tabellenwerte gemäß Excel-Referenz. Vor operativer Verwendung gegen das freigegebene AFM/POH prüfen. Flugplatzdaten: <a href="https://github.com/mborsetti/airportsdata" rel="noreferrer">airportsdata</a>; QNH: METAR-Dienst.</p></footer>
   </main>
